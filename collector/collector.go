@@ -16,6 +16,8 @@ package main
 
 import (
 	"fmt"
+	"bytes"
+	"html/template"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/service"
 	"go.opentelemetry.io/collector/service/parserprovider"
@@ -47,18 +49,29 @@ var configFile = getConfig()
 func getConfig() string {
 	val, ex := os.LookupEnv("OPENTELEMETRY_COLLECTOR_CONFIG_FILE")
 	if !ex {
-		return "/opt/collector-config/config.yaml"
+		return "/opt/collector-config/config-custom.yaml"
 	}
 	return val
 }
 
 func NewCollector(factories component.Factories) *Collector {
-	f, err := os.Open(configFile)
+	var data interface{}
+	t, err := template.New("config-custom.yaml").Funcs(template.FuncMap{
+		"envOrKey": envOrKey,
+	}).ParseFiles(configFile)
+	if err != nil {
+		log.Printf("Parsing config from file: %v failed.\n", configFile)
+		log.Fatal(err)
+		panic("Cannot parse Collector config.")
+	}
+	var buf bytes.Buffer
+	err = t.Execute(&buf, data)
 	if err != nil {
 		log.Printf("Reading AOT config from file: %v failed.\n", configFile)
+		log.Fatal(err)
 		panic("Cannot load Collector config.")
 	}
-	var r io.Reader = f
+	var r io.Reader = bytes.NewReader(buf.Bytes())
 	col := &Collector{
 		factories:      factories,
 		parserProvider: parserprovider.NewInMemory(r),
@@ -112,4 +125,11 @@ func (c *Collector) Stop() error {
 	}
 	<-c.appDone
 	return nil
+}
+
+func envOrKey(key, fallback string) string {
+    if value, ok := os.LookupEnv(key); ok {
+        return value
+    }
+    return fallback;
 }

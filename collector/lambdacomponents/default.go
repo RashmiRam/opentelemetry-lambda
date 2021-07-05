@@ -26,7 +26,8 @@ import (
 	"go.opentelemetry.io/collector/processor/probabilisticsamplerprocessor"
 	"go.opentelemetry.io/collector/processor/resourceprocessor"
 	"go.opentelemetry.io/collector/processor/spanprocessor"
-	"go.opentelemetry.io/collector/receiver/otlpreceiver"
+  "go.opentelemetry.io/collector/receiver/otlpreceiver"
+  "go.opentelemetry.io/collector/exporter/jaegerexporter"
 )
 
 func Components() (component.Factories, error) {
@@ -42,7 +43,8 @@ func Components() (component.Factories, error) {
 	exporters, err := component.MakeExporterFactoryMap(
 		loggingexporter.NewFactory(),
 		otlpexporter.NewFactory(),
-		otlphttpexporter.NewFactory(),
+    otlphttpexporter.NewFactory(),
+    jaegerexporter.NewFactory()
 	)
 	if err != nil {
 		errs = append(errs, err)

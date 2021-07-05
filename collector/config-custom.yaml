@@ -1,0 +1,30 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+exporters:
+  {{ if eq (envOrKey "HAYSTACK_TRACE_EXPORTER_DEBUG_ENABLED" "false") "true"}}
+  logging:
+    loglevel: debug
+  {{ end }}  
+  jaeger:
+    endpoint: {{envOrKey "HAYSTACK_TRACE_ENDPOINT" ""}}
+    insecure: true
+    balancer_name: round_robin
+    headers:
+      X-Auth-Token: {{envOrKey "HAYSTACK_TRACE_AUTH_TOKEN" ""}}
+       
+
+service:
+  pipelines:
+    {{ if eq (envOrKey "HAYSTACK_TRACE_EXPORTER_DEBUG_ENABLED" "false") "true"}}
+    traces:
+      receivers: [otlp]
+      exporters: [logging,jaeger]
+    {{ else }}
+    traces:
+      receivers: [otlp]
+      exporters: [jaeger]
+    {{ end }}
