@@ -39,7 +39,7 @@ var (
 type Collector struct {
 	factories      component.Factories
 	parserProvider parserprovider.ParserProvider
-	svc            *service.Application
+	svc            *service.Collector
 	appDone        chan struct{}
 	stopped        bool
 }
@@ -80,7 +80,7 @@ func NewCollector(factories component.Factories) *Collector {
 }
 
 func (c *Collector) Start() error {
-	params := service.Parameters{
+	params := service.CollectorSettings{
 		BuildInfo: component.BuildInfo{
 			Command:  "otelcol",
 			Description: "Lambda Collector",
