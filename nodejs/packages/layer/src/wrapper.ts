@@ -43,7 +43,7 @@ const instrumentations = [
   new AwsInstrumentation({
     suppressInternalInstrumentation: true,
   }),
-  new AwsLambdaInstrumentation(),
+  new AwsLambdaInstrumentation({disableAwsContextPropagation: true}),
   new DnsInstrumentation(),
   new ExpressInstrumentation(),
   new GraphQLInstrumentation(),
