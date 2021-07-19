@@ -44,8 +44,9 @@ func Components() (component.Factories, error) {
 		loggingexporter.NewFactory(),
 		otlpexporter.NewFactory(),
     otlphttpexporter.NewFactory(),
-    jaegerexporter.NewFactory()
-	)
+    jaegerexporter.NewFactory(),
+  )
+  
 	if err != nil {
 		errs = append(errs, err)
 	}
